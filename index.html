@@ -981,6 +981,46 @@ style="height:60px; margin-top:15px;">
   </div>
   
 </section>
+<!-- MODAL DE CONFIRMACIÓN -->
+<div id="modalConfirmacion" style="
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.7);
+  display:none;
+  justify-content:center;
+  align-items:center;
+  z-index:10000;
+">
+  <div id="modalContent" style="
+    background:white;
+    border-radius:20px;
+    padding:40px 30px;
+    max-width:400px;
+    text-align:center;
+    font-family:'Playfair Display', serif;
+    box-shadow:0 20px 50px rgba(0,0,0,0.3);
+    transform:scale(0);
+    transition:transform 0.4s ease;
+  ">
+    <h2 style="font-family:'Great Vibes',cursive; font-size:36px; color:#1b4332; margin-bottom:20px;">
+      Mensaje listo para enviar
+    </h2>
+    <p style="font-size:18px; color:#333; margin-bottom:30px;">
+      Se ha abierto WhatsApp con tu mensaje de confirmación. Asegúrate de enviarlo para completar tu asistencia.
+    </p>
+    <button onclick="cerrarModal()" style="
+      background:#d4af37;
+      color:#000;
+      border:none;
+      padding:12px 30px;
+      font-size:16px;
+      border-radius:50px;
+      cursor:pointer;
+      font-weight:700;
+    ">Cerrar</button>
+  </div>
+</div>
+
 <script>
 /* CUENTA REGRESIVA */
 const fechaEvento=new Date("December 29, 2026 17:00:00").getTime();
@@ -996,12 +1036,28 @@ setInterval(()=>{
 
 /* RSVP WHATSAPP */
 function confirmarAsistencia(){
-  const nombre=document.getElementById("nombreInvitado").innerText;
-  const asistentes=document.getElementById("numAsistentes").value;
-  if(!asistentes){ alert("Selecciona asistentes"); return; }
-  const telefono="527531006781";
-  const mensaje=`Confirmo asistencia 🎉\nNombre: ${nombre}\nAsistentes: ${asistentes}`;
-  window.open(`https://wa.me/${telefono}?text=${encodeURIComponent(mensaje)}`,"_blank");
+  const nombre = document.getElementById("nombreInvitado").innerText;
+  const asistentes = document.getElementById("numAsistentes").value;
+
+  if(!asistentes){ 
+    alert("Selecciona asistentes"); 
+    return; 
+  }
+
+  // Número de WhatsApp
+  const telefono = "527531006781";
+  const mensaje = `Confirmo asistencia 🎉\nNombre: ${nombre}\nAsistentes: ${asistentes}`;
+  const url = `https://wa.me/${telefono}?text=${encodeURIComponent(mensaje)}`;
+
+  // Abrir WhatsApp en nueva pestaña
+  const win = window.open(url, "_blank");
+
+  // Solo mostrar modal si WhatsApp se abrió (no podemos saber si envió)
+  if(win) {
+    mostrarModalConfirmacion();
+  } else {
+    alert("No se pudo abrir WhatsApp. Por favor, verifica tu navegador.");
+  }
 }
 
 /* CONFIRMACIÓN FAMILIA POR WHATSAPP */
@@ -1014,15 +1070,20 @@ function enviarFamiliaWhatsApp(){
     }
 
     let mensaje = "Confirmación de asistencia - Familia Hernández López:%0A";
-
     checkboxes.forEach(cb => {
         mensaje += "• " + cb.value + "%0A";
     });
 
-    const telefono = "527531006781"; // Cambia por tu número
+    const telefono = "527531006781";
     const url = "https://wa.me/" + telefono + "?text=" + mensaje;
 
-    window.open(url, "_blank");
+    const win = window.open(url, "_blank");
+
+    if(win) {
+      mostrarModalConfirmacion();
+    } else {
+      alert("No se pudo abrir WhatsApp. Por favor, verifica tu navegador.");
+    }
 }
 
 /* ANIMACIÓN ITINERARIO BLOQUE POR BLOQUE */
@@ -1131,6 +1192,22 @@ function iniciarInvitacion(){
 
   // Permitir scroll del body
   document.body.style.overflow = 'auto';
+}
+
+function mostrarModalConfirmacion() {
+  const modal = document.getElementById('modalConfirmacion');
+  const contenido = document.getElementById('modalContent');
+
+  modal.style.display = 'flex';       // muestra el modal
+  setTimeout(() => contenido.style.transform = 'scale(1)', 50); // animación de entrada
+}
+
+function cerrarModal() {
+  const modal = document.getElementById('modalConfirmacion');
+  const contenido = document.getElementById('modalContent');
+
+  contenido.style.transform = 'scale(0)';  // animación de salida
+  setTimeout(() => modal.style.display = 'none', 400); // después de la animación, ocultar
 }
 </script>
 
